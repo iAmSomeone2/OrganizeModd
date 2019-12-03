@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/iAmSomeone2/organizemodd/modd"
+	"github.com/iAmSomeone2/organizemodd/metadata"
 )
 
 const testFilePath string = "/home/bdavidson/Videos/Home_Videos/1-12-2010/20091224204921.modd"
@@ -31,7 +31,7 @@ func main() {
 
 	moddText := string(moddBytes)
 
-	moddData := modd.GetModd(moddText, testFilePath)
-
-	fmt.Println(moddData)
+	moddData := metadata.GetModd(moddText, testFilePath)
+	marshallTxt, _ := moddData.MarshallJSON()
+	fmt.Printf("%s\n", marshallTxt)
 }
