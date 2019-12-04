@@ -43,7 +43,7 @@ func ConnectToDb(path string) *sql.DB {
 // AddModdToDb adds a .modd file to the database if it does not already exist.
 //
 // The function will update a prexisting entry.
-func AddModdToDb(modd Modd, db *sql.DB) error {
+func (modd Modd) AddModdToDb(db *sql.DB) error {
 	// Check if the modd's checkCode is already in use in the db.
 	rows, err := db.Query(fmt.Sprintf(`SELECT * FROM modd WHERE checkCode == %d`, modd.CheckCode))
 	if err != nil {
@@ -55,7 +55,7 @@ func AddModdToDb(modd Modd, db *sql.DB) error {
 		rows.Close()
 		fmt.Println("Updating exisiting row in modd table...")
 		// At least one row is present if this is true. Update with the new modd values.
-		err := UpdateModdInDb(modd, db)
+		err := modd.UpdateModdInDb(db)
 
 		return err
 	}
@@ -73,7 +73,7 @@ func AddModdToDb(modd Modd, db *sql.DB) error {
 }
 
 // UpdateModdInDb updates a modd entry if it is already present.
-func UpdateModdInDb(modd Modd, db *sql.DB) error {
+func (modd Modd) UpdateModdInDb(db *sql.DB) error {
 	var statementStr strings.Builder
 	rows, err := db.Query(fmt.Sprintf(`SELECT * FROM modd WHERE checkCode LIKE %d`, modd.CheckCode))
 	if err != nil {

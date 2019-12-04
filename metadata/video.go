@@ -1,6 +1,10 @@
 package metadata
 
 import (
+	"crypto/sha256"
+	"errors"
+	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -18,6 +22,7 @@ const (
 	MPEG Container = iota + 1
 	MP4
 	MKV
+	UnkownContainer
 )
 
 // String provides the default printing interface for Container
@@ -33,6 +38,9 @@ func (cont Container) String() string {
 	case MKV:
 		returnStr.WriteString("Matroska")
 		break
+	case UnkownContainer:
+		returnStr.WriteString("unkown")
+		break
 	}
 
 	return returnStr.String()
@@ -46,6 +54,7 @@ const (
 	MPEG2 VideoCodec = iota + 1
 	X264
 	X265
+	UnknownVidCodec
 )
 
 // String provides the default printing interface for VideoCodec
@@ -62,6 +71,9 @@ func (vc VideoCodec) String() string {
 	case X265:
 		returnStr.WriteString("x265")
 		break
+	case UnknownVidCodec:
+		returnStr.WriteString("unkown")
+		break
 	}
 
 	return returnStr.String()
@@ -77,20 +89,63 @@ const (
 	AAC
 	// VORBIS audio codec
 	VORBIS
+	// UnknownAudCodec is the catchall
+	UnknownAudCodec
 )
+
+func (ac AudioCodec) String() string {
+	var returnStr strings.Builder
+
+	switch ac {
+	case AC3:
+		returnStr.WriteString("ac3/Dolby Digital")
+		break
+	case AAC:
+		returnStr.WriteString("aac/mp4")
+		break
+	case VORBIS:
+		returnStr.WriteString("ogg-vorbis")
+		break
+	case UnknownAudCodec:
+		returnStr.WriteString("unkown")
+		break
+	}
+
+	return returnStr.String()
+}
 
 // Video is a struct representing all of the relevant metadata for a video file.
 type Video struct {
-	Name         string     // Name of file not including extension
-	Location     string     // Location of file on system
-	CreationTime time.Time  // Time when video was first created
-	Duration     float64    // Number of seconds in video file
-	FileSize     uint64     // Number of bytes in file
-	VidContainer Container  // Container type of the video file.
-	VidCodec     VideoCodec // Video encoding type
-	AudCodec     AudioCodec // Audio encoding type
-	SHA256Hash   []byte     // SHA-256 hash of the file contents
-	LinkedModd   *Modd      // Modd struct associated with this video file
+	FileStat     os.FileInfo // OS-provided stats from the file. Includes base name and size
+	Location     string      // Location of file on system
+	CreationTime time.Time   // Time when video was first created
+	Duration     float64     // Number of seconds in video file
+	VidContainer Container   // Container type of the video file.
+	VidCodec     VideoCodec  // Video encoding type
+	AudCodec     AudioCodec  // Audio encoding type
+	SHA256Hash   []byte      // SHA-256 hash of the file contents
+	LinkedModd   *Modd       // Modd struct associated with this video file
+}
+
+// MarshallJSON provides the functionality to convert the Video struct to a JSON
+// format
+func (video Video) MarshallJSON() ([]byte, error) {
+	var jsonStr strings.Builder
+	var err error
+
+	jsonStr.WriteString(fmt.Sprintf(`{"name":"%s","size":%d,"location":"%s"`,
+		video.FileStat.Name(), video.FileStat.Size(), video.Location))
+	dateTimeTxt, err := video.CreationTime.MarshalJSON()
+	jsonStr.WriteString(fmt.Sprintf(`,"creation_time":%s,"duration":%0.15f`,
+		dateTimeTxt, video.Duration))
+	jsonStr.WriteString(fmt.Sprintf(`,"container":"%s","video_codec":"%s","audio_codec":"%s"`,
+		video.VidContainer, video.VidCodec, video.AudCodec))
+	jsonStr.WriteString(fmt.Sprintf(`,"sha256_hash":"%x","linked_modd":`, video.SHA256Hash))
+	moddJSON, err := video.LinkedModd.MarshallJSON()
+	jsonStr.Write(moddJSON)
+	jsonStr.WriteRune('}')
+
+	return []byte(jsonStr.String()), err
 }
 
 // determineLocation finds the location of a video file based on where its .modd file is
@@ -118,27 +173,74 @@ func determineLocation(location string) string {
 }
 
 // computeHash reads in the video file and creates an SHA-256 hash from it.
-func (vid Video) computeHash() {
+func (video *Video) computeHash(done chan bool) {
+	hash := sha256.New()
+	data := make([]byte, video.FileStat.Size())
+	file, err := os.OpenFile(video.Location, os.O_RDONLY, 0755)
+	if err != nil {
+		log.Print(err)
+	}
+	defer file.Close()
 
+	readCount, err := file.Read(data)
+	if err != nil {
+		log.Print(err)
+	} else if int64(readCount) != video.FileStat.Size() {
+		log.Print(errors.New("could not read entire file"))
+	}
+
+	_, err = hash.Write(data)
+	if err != nil {
+		log.Print(err)
+	}
+
+	video.SHA256Hash = hash.Sum(nil)
+
+	done <- true
 }
 
 // VideoFromModd reads in the modd struct, locates the associated video in the filesystem,
 // and returns a video struct describing that video.
-func VideoFromModd(modd *Modd) Video {
+func (modd *Modd) VideoFromModd() Video {
 	var video Video
-
-	// Fill in known fields
-	video.Name = modd.Name
-	video.CreationTime = modd.DateTimeActual
-	video.Duration = modd.Duration
-	video.FileSize = modd.FileSize
-	video.LinkedModd = modd
 
 	// Determine location
 	video.Location = determineLocation(modd.Location)
+	videoStat, err := os.Stat(video.Location)
+	if err != nil {
+		log.Panic(err)
+	}
+	video.FileStat = videoStat
 
 	// Compute the hash in a separate goroutine
-	go video.computeHash()
+	done := make(chan bool)
+	go video.computeHash(done)
 
+	// Fill in known fields
+	video.CreationTime = modd.DateTimeActual
+	video.Duration = modd.Duration
+	video.LinkedModd = modd
+
+	// Deal with getting containers and codecs
+	vidExt := filepath.Ext(video.Location)
+	switch vidExt {
+	case ".mpg", ".MPG", ".mpeg", ".MPEG":
+		video.VidContainer = MPEG
+		break
+	case ".mp4", ".MP4", ".m4v", ".M4V":
+		video.VidContainer = MP4
+		break
+	case ".mkv", ".MKV":
+		video.VidContainer = MKV
+		break
+	default:
+		video.VidContainer = UnkownContainer
+	}
+
+	// Codec detection isn't ready yet.
+	video.VidCodec = UnknownVidCodec
+	video.AudCodec = UnknownAudCodec
+
+	<-done // Wait for hash algo to complete
 	return video
 }

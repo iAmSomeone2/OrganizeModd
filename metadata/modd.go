@@ -71,7 +71,7 @@ func (m Modd) MarshallJSON() ([]byte, error) {
 	var jsonSb strings.Builder
 
 	jsonSb.WriteString(fmt.Sprintf("{\"name\":\"%s\",", m.Name))
-	jsonSb.WriteString(fmt.Sprintf("\"checkCode\":\"%d\",", m.CheckCode))
+	jsonSb.WriteString(fmt.Sprintf("\"checkCode\":%d,", m.CheckCode))
 	jsonSb.WriteString(fmt.Sprintf("\"dateTimeOriginal\":%0.15f,", m.DateTimeOriginal))
 	dateTimeTxt, err := m.DateTimeActual.MarshalJSON()
 	jsonSb.WriteString(fmt.Sprintf("\"dateTimeActual\":%s,", dateTimeTxt))
