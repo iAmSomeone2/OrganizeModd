@@ -1,5 +1,8 @@
 # .gitignore for organizemod
 
+# IDE configs
+**/.vscode/
+
 # Binaries
 **/organizemodd
 

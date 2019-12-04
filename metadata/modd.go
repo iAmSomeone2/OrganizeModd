@@ -14,19 +14,26 @@ import (
 	since Dec 30, 1899.
 */
 
-const cstTzBuffer uint64 = 21600
-
 const xmlHeader string = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
 const dataHeader string = "<plist version=\"1.0\"><dict><key>MetaDataList</key><array><dict>"
 const dataFooter string = "</dict></array><key>XMLFileType</key><string>ModdXML</string></dict></plist>"
 
 // Time constants
 const uinxMinusMSEpoch uint64 = 2209161600
-const minSecs uint64 = 60
-const hourSecs uint64 = 3600
-const daySecs uint64 = 86400
-const monthSecs uint64 = 2629743
-const yearSecs uint64 = 31556926
+
+// TimeZone provides the values needed to compute metadata date/time offsets.
+type TimeZone uint64
+
+const (
+	// EST (Eastern Standard Time)
+	EST TimeZone = (5 + iota) * 3600
+	// CST (Central Standard Time)
+	CST
+	// MST (Mountain Standard Time)
+	MST
+	// PST (Pacific Standard Time)
+	PST
+)
 
 // Modd is a structured representation of the data contained in a .modd file.
 type Modd struct {
@@ -110,11 +117,11 @@ func cleanText(moddText string) string {
 	return moddText
 }
 
-func (m *Modd) setActualTime() {
+func (m *Modd) setActualTime(tz TimeZone) {
 	// Convert original time to seconds instead of days
 	originalSecs := uint64(m.DateTimeOriginal * 86400)
 	// Convert to seconds from Unix epoch
-	epochSecs := (originalSecs - uinxMinusMSEpoch) + cstTzBuffer
+	epochSecs := (originalSecs - uinxMinusMSEpoch) + uint64(tz)
 
 	m.DateTimeActual = time.Unix(int64(epochSecs), 0).UTC()
 }
@@ -150,7 +157,7 @@ func GetModd(moddText string, moddFilePath string) Modd {
 				if err != nil {
 					log.Fatal(err)
 				}
-				modd.setActualTime()
+				modd.setActualTime(CST)
 				break
 			case "duration":
 				modd.Duration, err = strconv.ParseFloat(values[1], 64)
