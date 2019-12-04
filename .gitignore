@@ -2,3 +2,7 @@
 
 # Binaries
 **/organizemodd
+
+# Database files
+**/db/*
+!**/db/README.*

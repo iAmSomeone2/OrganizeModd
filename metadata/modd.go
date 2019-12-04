@@ -14,6 +14,8 @@ import (
 	since Dec 30, 1899.
 */
 
+const cstTzBuffer uint64 = 21600
+
 const xmlHeader string = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
 const dataHeader string = "<plist version=\"1.0\"><dict><key>MetaDataList</key><array><dict>"
 const dataFooter string = "</dict></array><key>XMLFileType</key><string>ModdXML</string></dict></plist>"
@@ -28,13 +30,14 @@ const yearSecs uint64 = 31556926
 
 // Modd is a structured representation of the data contained in a .modd file.
 type Modd struct {
-	name             string    // Derived from file name
-	checkCode        string    // Unknown algorithm
-	dateTimeOriginal float64   // Measured in days since Dec. 30, 1899
-	dateTimeActual   time.Time // Unix-standard version of dateTimeOriginal
-	duration         float64   // Seconds
-	fileSize         uint64    // Bytes
-	vtList           []VT      // Unkown purpose. Potentially video timings
+	Name             string    // Derived from file name
+	Location         string    // Location of .modd file in filesystem
+	CheckCode        uint64    // Unknown algorithm
+	DateTimeOriginal float64   // Measured in days since Dec. 30, 1899
+	DateTimeActual   time.Time // Unix-standard version of dateTimeOriginal
+	Duration         float64   // Seconds
+	FileSize         uint64    // Bytes
+	VtList           []VT      // Unkown purpose. Potentially video timings
 }
 
 // FORMATTING FUNCTIONS
@@ -43,14 +46,14 @@ type Modd struct {
 func (m Modd) String() string {
 	var mStr strings.Builder
 
-	mStr.WriteString(fmt.Sprintf("{ Name = %s", m.name))
-	mStr.WriteString(fmt.Sprintf(", CheckCode = %s", m.checkCode))
-	mStr.WriteString(fmt.Sprintf(", DateTimeOriginal = %0.15f", m.dateTimeOriginal))
+	mStr.WriteString(fmt.Sprintf("{ Name = %s", m.Name))
+	mStr.WriteString(fmt.Sprintf(", CheckCode = %d", m.CheckCode))
+	mStr.WriteString(fmt.Sprintf(", DateTimeOriginal = %0.15f", m.DateTimeOriginal))
 	mStr.WriteString(", DateTimeActual = ")
-	mStr.WriteString(fmt.Sprintf("%d-%d-%d", m.dateTimeActual.Year(), m.dateTimeActual.Month(), m.dateTimeActual.Day()))
-	mStr.WriteString(fmt.Sprintf(", Duration = %0.15f", m.duration))
-	mStr.WriteString(fmt.Sprintf(", FileSize = %d", m.fileSize))
-	mStr.WriteString(fmt.Sprintf(", VTList = %v}", m.vtList))
+	mStr.WriteString(fmt.Sprintf("%d-%d-%d", m.DateTimeActual.Year(), m.DateTimeActual.Month(), m.DateTimeActual.Day()))
+	mStr.WriteString(fmt.Sprintf(", Duration = %0.15f", m.Duration))
+	mStr.WriteString(fmt.Sprintf(", FileSize = %s", strconv.FormatUint(m.FileSize, 10)))
+	mStr.WriteString(fmt.Sprintf(", VTList = %v}", m.VtList))
 
 	return mStr.String()
 }
@@ -60,19 +63,19 @@ func (m Modd) String() string {
 func (m Modd) MarshallJSON() ([]byte, error) {
 	var jsonSb strings.Builder
 
-	jsonSb.WriteString(fmt.Sprintf("{\"Name\":\"%s\",", m.name))
-	jsonSb.WriteString(fmt.Sprintf("\"CheckCode\":\"%s\",", m.checkCode))
-	jsonSb.WriteString(fmt.Sprintf("\"DateTimeOriginal\":%0.15f,", m.dateTimeOriginal))
-	dateTimeTxt, err := m.dateTimeActual.MarshalJSON()
-	jsonSb.WriteString(fmt.Sprintf("\"DateTimeActual\":%s,", dateTimeTxt))
-	jsonSb.WriteString(fmt.Sprintf("\"Duration\":%0.15f,", m.duration))
-	jsonSb.WriteString(fmt.Sprintf("\"FileSize\":%d,", m.fileSize))
+	jsonSb.WriteString(fmt.Sprintf("{\"name\":\"%s\",", m.Name))
+	jsonSb.WriteString(fmt.Sprintf("\"checkCode\":\"%d\",", m.CheckCode))
+	jsonSb.WriteString(fmt.Sprintf("\"dateTimeOriginal\":%0.15f,", m.DateTimeOriginal))
+	dateTimeTxt, err := m.DateTimeActual.MarshalJSON()
+	jsonSb.WriteString(fmt.Sprintf("\"dateTimeActual\":%s,", dateTimeTxt))
+	jsonSb.WriteString(fmt.Sprintf("\"duration\":%0.15f,", m.Duration))
+	jsonSb.WriteString(fmt.Sprintf("\"fileSize\":%s,", strconv.FormatUint(m.FileSize, 10)))
 	// Deal with the VTList
-	jsonSb.WriteString("\"VTList\":[")
-	for i, item := range m.vtList {
+	jsonSb.WriteString("\"vtList\":[")
+	for i, item := range m.VtList {
 		vtTxt, _ := item.MarshallJSON()
 		jsonSb.WriteString(fmt.Sprintf("%s", vtTxt))
-		if i < len(m.vtList)-1 {
+		if i < len(m.VtList)-1 {
 			jsonSb.WriteRune(',')
 		}
 	}
@@ -104,17 +107,16 @@ func cleanText(moddText string) string {
 
 	moddText = strings.TrimSpace(moddText)
 
-	fmt.Println(moddText)
 	return moddText
 }
 
 func (m *Modd) setActualTime() {
 	// Convert original time to seconds instead of days
-	originalSecs := uint64(m.dateTimeOriginal * 86400)
+	originalSecs := uint64(m.DateTimeOriginal * 86400)
 	// Convert to seconds from Unix epoch
-	epochSecs := originalSecs - uinxMinusMSEpoch
+	epochSecs := (originalSecs - uinxMinusMSEpoch) + cstTzBuffer
 
-	m.dateTimeActual = time.Unix(int64(epochSecs), 0)
+	m.DateTimeActual = time.Unix(int64(epochSecs), 0).UTC()
 }
 
 // GetModd reads in the raw XML data from the .modd file and returns a Modd struct.
@@ -128,7 +130,8 @@ func GetModd(moddText string, moddFilePath string) Modd {
 
 	moddText = cleanText(moddText)
 	var modd Modd
-	modd.name = moddFileName
+	modd.Location = moddFilePath
+	modd.Name = moddFileName
 	moddLines := strings.Split(moddText, "\n")
 	for _, line := range moddLines {
 		var err error
@@ -136,23 +139,27 @@ func GetModd(moddText string, moddFilePath string) Modd {
 			values := strings.Split(line, ",")
 			switch strings.ToLower(values[0]) {
 			case "checkcode":
-				modd.checkCode = values[1]
+				checkCode, err := strconv.ParseUint(values[1], 16, 32)
+				if err != nil {
+					log.Fatal(err)
+				}
+				modd.CheckCode = checkCode
 				break
 			case "datetimeoriginal":
-				modd.dateTimeOriginal, err = strconv.ParseFloat(values[1], 64)
+				modd.DateTimeOriginal, err = strconv.ParseFloat(values[1], 64)
 				if err != nil {
 					log.Fatal(err)
 				}
 				modd.setActualTime()
 				break
 			case "duration":
-				modd.duration, err = strconv.ParseFloat(values[1], 64)
+				modd.Duration, err = strconv.ParseFloat(values[1], 64)
 				if err != nil {
 					log.Fatal(err)
 				}
 				break
 			case "filesize":
-				modd.fileSize, err = strconv.ParseUint(values[1], 10, 64)
+				modd.FileSize, err = strconv.ParseUint(values[1], 10, 64)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -172,7 +179,7 @@ func GetModd(moddText string, moddFilePath string) Modd {
 				continue
 			}
 			vtVal := GetVT(line)
-			modd.vtList = append(modd.vtList, vtVal)
+			modd.VtList = append(modd.VtList, vtVal)
 		}
 	}
 

@@ -68,7 +68,7 @@ func (vt VT) MarshallJSON() ([]byte, error) {
 
 	vtSb.WriteString(
 		fmt.Sprintf(
-			"{\"Field0\":%d,\"Field1\":%d,\"Field2\":%f,\"Field3\":%f,\"Field4\":%f,\"Field5\":%d}",
+			"{\"field0\":%d,\"field1\":%d,\"field2\":%f,\"field3\":%f,\"field4\":%f,\"field5\":%d}",
 			vt.field0, vt.field1, vt.field2, vt.field3, vt.field4, vt.field5))
 
 	return []byte(vtSb.String()), nil
