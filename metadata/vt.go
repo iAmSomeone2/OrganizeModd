@@ -61,9 +61,9 @@ func (vt VT) String() string {
 	return vtStr.String()
 }
 
-// MarshallJSON provides the functionality to convert the VT struct to a JSON
+// MarshalJSON provides the functionality to convert the VT struct to a JSON
 // format.
-func (vt VT) MarshallJSON() ([]byte, error) {
+func (vt VT) MarshalJSON() ([]byte, error) {
 	var vtSb strings.Builder
 
 	vtSb.WriteString(

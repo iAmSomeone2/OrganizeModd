@@ -53,14 +53,14 @@ func (modd Modd) AddModdToDb(db *sql.DB) error {
 
 	if rows.Next() {
 		rows.Close()
-		fmt.Println("Updating exisiting row in modd table...")
+		// fmt.Println("Updating exisiting row in modd table...")
 		// At least one row is present if this is true. Update with the new modd values.
 		err := modd.UpdateModdInDb(db)
 
 		return err
 	}
 	// Insert new modd entry
-	fmt.Println("Adding new modd entry...")
+	// fmt.Println("Adding new modd entry...")
 	statement, err := db.Prepare(
 		`INSERT INTO "modd" (checkCode, name, dateTime, videoDuration, videoFileSize, moddFileLocation) VALUES (?, ?, ?, ?, ?, ?)`)
 	_, err = statement.Exec(modd.CheckCode, modd.Name, modd.DateTimeActual.Unix(), modd.Duration, modd.FileSize, modd.Location)

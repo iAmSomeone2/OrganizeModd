@@ -65,9 +65,9 @@ func (m Modd) String() string {
 	return mStr.String()
 }
 
-// MarshallJSON provides the functionality to convert the Modd struct to a JSON
+// MarshalJSON provides the functionality to convert the Modd struct to a JSON
 // format.
-func (m Modd) MarshallJSON() ([]byte, error) {
+func (m Modd) MarshalJSON() ([]byte, error) {
 	var jsonSb strings.Builder
 
 	jsonSb.WriteString(fmt.Sprintf("{\"name\":\"%s\",", m.Name))
@@ -80,7 +80,7 @@ func (m Modd) MarshallJSON() ([]byte, error) {
 	// Deal with the VTList
 	jsonSb.WriteString("\"vtList\":[")
 	for i, item := range m.VtList {
-		vtTxt, _ := item.MarshallJSON()
+		vtTxt, _ := item.MarshalJSON()
 		jsonSb.WriteString(fmt.Sprintf("%s", vtTxt))
 		if i < len(m.VtList)-1 {
 			jsonSb.WriteRune(',')

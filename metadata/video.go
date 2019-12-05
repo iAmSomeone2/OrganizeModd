@@ -127,9 +127,9 @@ type Video struct {
 	LinkedModd   *Modd       // Modd struct associated with this video file
 }
 
-// MarshallJSON provides the functionality to convert the Video struct to a JSON
+// MarshalJSON provides the functionality to convert the Video struct to a JSON
 // format
-func (video Video) MarshallJSON() ([]byte, error) {
+func (video Video) MarshalJSON() ([]byte, error) {
 	var jsonStr strings.Builder
 	var err error
 
@@ -141,7 +141,7 @@ func (video Video) MarshallJSON() ([]byte, error) {
 	jsonStr.WriteString(fmt.Sprintf(`,"container":"%s","video_codec":"%s","audio_codec":"%s"`,
 		video.VidContainer, video.VidCodec, video.AudCodec))
 	jsonStr.WriteString(fmt.Sprintf(`,"sha256_hash":"%x","linked_modd":`, video.SHA256Hash))
-	moddJSON, err := video.LinkedModd.MarshallJSON()
+	moddJSON, err := video.LinkedModd.MarshalJSON()
 	jsonStr.Write(moddJSON)
 	jsonStr.WriteRune('}')
 

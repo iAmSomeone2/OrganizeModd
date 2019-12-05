@@ -1,6 +1,8 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -9,14 +11,13 @@ import (
 	"github.com/iAmSomeone2/organizemodd/metadata"
 )
 
-const testFilePath string = "/home/bdavidson/Videos/Home_Videos/1-12-2010/20091224204921.modd"
-const testDir string = "/home/bdavidson/Videos/Home_Videos/1-12-2010/"
+const testDir string = "/home/bdavidson/Videos/Home_Videos/"
 const testDbPath string = "./db/library.sqlite"
 
-func main() {
+func importModds(root string) metadata.ModdList {
 	moddList := metadata.MakeModdList(10)
 
-	err := filepath.Walk(testDir, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() && strings.ToLower(filepath.Ext(path)) == ".modd" {
 			moddFile, err := os.OpenFile(path, os.O_RDONLY, 0755)
 			if err != nil {
@@ -35,6 +36,9 @@ func main() {
 			moddText := string(moddBytes)
 
 			moddList.Append(metadata.GetModd(moddText, path))
+		} else if info.IsDir() && path != root {
+			// Follow directory and append the results to the current ModdList
+			moddList.Concat(importModds(path))
 		}
 		return nil
 	})
@@ -42,16 +46,31 @@ func main() {
 		log.Panic(err)
 	}
 
+	return moddList
+}
+
+func updateModdTable(list metadata.ModdList, db *sql.DB) {
+	var i uint64
+	for i = 0; i < list.Len(); i++ {
+		modd, err := list.Get(i)
+		if err != nil {
+			log.Panic(err)
+		}
+		err = modd.AddModdToDb(db)
+		if err != nil {
+			log.Panic(err)
+		}
+	}
+}
+
+func main() {
+	fmt.Printf("Looking for \"modd\" files...\n")
+	moddList := importModds(testDir)
+
 	// Open database connection
 	database := metadata.ConnectToDb(testDbPath)
 	defer database.Close()
 
-	// err = moddData.AddModdToDb(database)
-	// if err != nil {
-	// 	log.Panic(err)
-	// }
-
-	// video := moddData.VideoFromModd()
-	// videoJSON, _ := video.MarshallJSON()
-	// fmt.Printf("%s\n", videoJSON)
+	fmt.Printf("Updating database...\n")
+	updateModdTable(moddList, database)
 }
