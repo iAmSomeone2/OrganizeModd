@@ -86,8 +86,25 @@ func (list *ModdList) expand() {
 	list.size = newSize
 }
 
+// Contains checks if the ModdList contains the suggested Modd
+func (list ModdList) Contains(modd Modd) bool {
+	var i uint64
+	for i = 0; i < list.len; i++ {
+		if list.data[i].Equals(modd) {
+			return true
+		}
+	}
+
+	return false
+}
+
 // Append adds the specified Modd to the end of the ModdList.
 func (list *ModdList) Append(modd Modd) {
+	// Determine if item is already present in the list
+	if list.Contains(modd) {
+		return
+	}
+
 	// Resize list if it will be too small
 	if list.len+1 == list.size {
 		list.expand()

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	// Connector for sql db
 	_ "github.com/mattn/go-sqlite3"
@@ -75,36 +76,76 @@ func (modd Modd) AddModdToDb(db *sql.DB) error {
 // UpdateModdInDb updates a modd entry if it is already present.
 func (modd Modd) UpdateModdInDb(db *sql.DB) error {
 	var statementStr strings.Builder
-	rows, err := db.Query(fmt.Sprintf(`SELECT * FROM modd WHERE checkCode LIKE %d`, modd.CheckCode))
+	var tempModd Modd
+	tempModd.DateTimeOriginal = -1
+	var timeSecs int64
+	err := db.QueryRow(fmt.Sprintf(`SELECT * FROM modd WHERE checkCode LIKE %d`, modd.CheckCode)).Scan(
+		&tempModd.CheckCode, &tempModd.Name,
+		&timeSecs, &tempModd.Duration, &tempModd.FileSize, &tempModd.Location)
 	if err != nil {
 		return err
 	}
-	var tempModd Modd
-	tempModd.DateTimeOriginal = -1
-	rows.Scan(
-		tempModd.CheckCode, tempModd.Name,
-		tempModd.DateTimeActual, tempModd.Duration, tempModd.FileSize, tempModd.Location)
-	rows.Close()
+	tempModd.DateTimeActual = time.Unix(timeSecs, 0)
+	// fmt.Printf("tempModd: '%v'\n", tempModd.String())
 
 	// Construct SQL statement
-	statementStr.WriteString(fmt.Sprintf(`UPDATE modd SET name = "%s"`, modd.Name))
-	statementStr.WriteString(fmt.Sprintf(`, dateTime = %d`, modd.DateTimeActual.Unix()))
-	statementStr.WriteString(fmt.Sprintf(`, videoDuration = %0.15f`, modd.Duration))
-	statementStr.WriteString(fmt.Sprintf(`, videoFileSize = %d`, modd.FileSize))
+	needsUpdate := false
+	addComma := false
+	statementStr.WriteString(`UPDATE modd SET`)
+	if tempModd.Name != modd.Name {
+		statementStr.WriteString(fmt.Sprintf(` name = "%s"`, modd.Name))
+		addComma = true
+		needsUpdate = true
+	}
+	if tempModd.DateTimeActual != modd.DateTimeActual {
+		if addComma {
+			statementStr.WriteRune(',')
+		} else {
+			addComma = true
+		}
+		statementStr.WriteString(fmt.Sprintf(` dateTime = %d`, modd.DateTimeActual.Unix()))
+		needsUpdate = true
+	}
+	if tempModd.Duration != modd.Duration {
+		if addComma {
+			statementStr.WriteRune(',')
+		} else {
+			addComma = true
+		}
+		statementStr.WriteString(fmt.Sprintf(` videoDuration = %0.15f`, modd.Duration))
+		needsUpdate = true
+	}
+	if tempModd.FileSize != modd.FileSize {
+		if addComma {
+			statementStr.WriteRune(',')
+		} else {
+			addComma = true
+		}
+		statementStr.WriteString(fmt.Sprintf(` videoFileSize = %d`, modd.FileSize))
+		needsUpdate = true
+	}
 	if tempModd.Location != modd.Location {
-		statementStr.WriteString(fmt.Sprintf(`, moddFileLocation = "%s"`, modd.Location))
+		if addComma {
+			statementStr.WriteRune(',')
+		} else {
+			addComma = true
+		}
+		statementStr.WriteString(fmt.Sprintf(` moddFileLocation = "%s"`, modd.Location))
+		needsUpdate = true
 	}
 	statementStr.WriteString(fmt.Sprintf(` WHERE checkCode LIKE %d`, modd.CheckCode))
 
-	statement, err := db.Prepare(statementStr.String())
-	if err != nil {
-		return err
+	if needsUpdate {
+		// fmt.Printf("Update statement: '%s'\n", statementStr.String())
+		statement, err := db.Prepare(statementStr.String())
+		if err != nil {
+			return err
+		}
+		defer statement.Close()
+		_, err = statement.Exec()
+		if err != nil {
+			return err
+		}
 	}
-	defer statement.Close()
-	_, err = statement.Exec()
-	if err != nil {
-		return err
-	}
-
 	return nil
 }

@@ -57,7 +57,7 @@ func (m Modd) String() string {
 	mStr.WriteString(fmt.Sprintf(", CheckCode = %d", m.CheckCode))
 	mStr.WriteString(fmt.Sprintf(", DateTimeOriginal = %0.15f", m.DateTimeOriginal))
 	mStr.WriteString(", DateTimeActual = ")
-	mStr.WriteString(fmt.Sprintf("%d-%d-%d", m.DateTimeActual.Year(), m.DateTimeActual.Month(), m.DateTimeActual.Day()))
+	mStr.WriteString(fmt.Sprintf("%s", m.DateTimeActual))
 	mStr.WriteString(fmt.Sprintf(", Duration = %0.15f", m.Duration))
 	mStr.WriteString(fmt.Sprintf(", FileSize = %s", strconv.FormatUint(m.FileSize, 10)))
 	mStr.WriteString(fmt.Sprintf(", VTList = %v}", m.VtList))
@@ -90,6 +90,41 @@ func (m Modd) MarshalJSON() ([]byte, error) {
 
 	jsonSb.WriteString("}")
 	return []byte(jsonSb.String()), err
+}
+
+// Equals computes the equality of two Modd structs
+func (m Modd) Equals(m1 Modd) bool {
+	if m.Name != m1.Name {
+		return false
+	}
+	if m.CheckCode != m1.CheckCode {
+		return false
+	}
+	if m.DateTimeOriginal != m1.DateTimeOriginal {
+		return false
+	}
+	if m.DateTimeActual != m1.DateTimeActual {
+		return false
+	}
+	if m.Duration != m1.Duration {
+		return false
+	}
+	if m.FileSize != m1.FileSize {
+		return false
+	}
+
+	// Check the VT list here
+	if len(m.VtList) != len(m1.VtList) {
+		return false
+	}
+
+	for i := 0; i < len(m.VtList); i++ {
+		if !m.VtList[i].Equals(m1.VtList[i]) {
+			return false
+		}
+	}
+
+	return true
 }
 
 // cleanText reads the text from the .modd file and converts it into a more readable

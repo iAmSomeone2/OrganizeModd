@@ -73,3 +73,26 @@ func (vt VT) MarshalJSON() ([]byte, error) {
 
 	return []byte(vtSb.String()), nil
 }
+
+// Equals computes the equality of two VT structs
+func (vt VT) Equals(vt1 VT) bool {
+	if vt.field0 != vt1.field0 {
+		return false
+	}
+	if vt.field1 != vt1.field1 {
+		return false
+	}
+	if vt.field2 != vt1.field2 {
+		return false
+	}
+	if vt.field3 != vt1.field3 {
+		return false
+	}
+	if vt.field4 != vt1.field4 {
+		return false
+	}
+	if vt.field5 != vt1.field5 {
+		return false
+	}
+	return true
+}
