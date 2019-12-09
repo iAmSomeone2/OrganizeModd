@@ -8,25 +8,25 @@ import (
 
 // TODO: Modify so that the struct acts like a set.
 
-// ModdList struct provides a struct for handling a list of Modds
-type ModdList struct {
+// ModdSet struct provides a struct for handling a list of Modds
+type ModdSet struct {
 	data []Modd // Actual Modds
 	len  uint64 // Number of items currently in list
 	size uint64 // Current size of list
 }
 
 // Len returns the number of items in the list.
-func (list ModdList) Len() uint64 {
+func (list ModdSet) Len() uint64 {
 	return list.len
 }
 
 // Size returns the current capacity of the list.
-func (list ModdList) Size() uint64 {
+func (list ModdSet) Size() uint64 {
 	return list.size
 }
 
-// String provides the default printing interface for ModdList
-func (list ModdList) String() string {
+// String provides the default printing interface for ModdSet
+func (list ModdSet) String() string {
 	var resultStr strings.Builder
 
 	resultStr.WriteRune('[')
@@ -41,9 +41,9 @@ func (list ModdList) String() string {
 	return resultStr.String()
 }
 
-// MarshalJSON provides the functionality to convert the ModdList struct to a JSON
+// MarshalJSON provides the functionality to convert the ModdSet struct to a JSON
 // format.
-func (list ModdList) MarshalJSON() ([]byte, error) {
+func (list ModdSet) MarshalJSON() ([]byte, error) {
 	var jsonStr strings.Builder
 	jsonStr.WriteRune('[')
 	for i := 0; uint64(i) < list.len; i++ {
@@ -61,9 +61,9 @@ func (list ModdList) MarshalJSON() ([]byte, error) {
 	return []byte(jsonStr.String()), nil
 }
 
-// MakeModdList creates and returns an initial Modd list of the specified size.
-func MakeModdList(initialSize uint64) ModdList {
-	var moddList ModdList
+// MakeModdSet creates and returns an initial Modd set of the specified size.
+func MakeModdSet(initialSize uint64) ModdSet {
+	var moddList ModdSet
 
 	moddList.data = make([]Modd, initialSize)
 	moddList.len = 0
@@ -73,7 +73,7 @@ func MakeModdList(initialSize uint64) ModdList {
 }
 
 // expand doubles the size of the list.
-func (list *ModdList) expand() {
+func (list *ModdSet) expand() {
 	newSize := list.size * 2
 	newList := make([]Modd, newSize)
 
@@ -86,8 +86,8 @@ func (list *ModdList) expand() {
 	list.size = newSize
 }
 
-// Contains checks if the ModdList contains the suggested Modd
-func (list ModdList) Contains(modd Modd) bool {
+// Contains checks if the ModdSet contains the suggested Modd
+func (list ModdSet) Contains(modd Modd) bool {
 	var i uint64
 	for i = 0; i < list.len; i++ {
 		if list.data[i].Equals(modd) {
@@ -98,8 +98,8 @@ func (list ModdList) Contains(modd Modd) bool {
 	return false
 }
 
-// Append adds the specified Modd to the end of the ModdList.
-func (list *ModdList) Append(modd Modd) {
+// Append adds the specified Modd to the end of the ModdSet.
+func (list *ModdSet) Append(modd Modd) {
 	// Determine if item is already present in the list
 	if list.Contains(modd) {
 		return
@@ -115,13 +115,13 @@ func (list *ModdList) Append(modd Modd) {
 }
 
 // Concat appends the data from a secondary list into the primary one.
-func (list *ModdList) Concat(list1 ModdList) {
+func (list *ModdSet) Concat(list1 ModdSet) {
 	// This is the point where I remembered that this isn't C
 	list.data = append(list.data, list1.data...)
 }
 
 // Get retrieves the Modd from the specified index.
-func (list ModdList) Get(i uint64) (Modd, error) {
+func (list ModdSet) Get(i uint64) (Modd, error) {
 	var returnModd Modd
 	if i >= list.len || i < 0 {
 		return returnModd, errors.New("out of bounds")
@@ -133,7 +133,7 @@ func (list ModdList) Get(i uint64) (Modd, error) {
 }
 
 // Set reassigns an item in the list to a new modd object
-func (list *ModdList) Set(i uint64, modd Modd) error {
+func (list *ModdSet) Set(i uint64, modd Modd) error {
 	if i >= list.len || i < 0 {
 		return errors.New("out of bounds")
 	}

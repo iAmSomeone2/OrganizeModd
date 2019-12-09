@@ -127,6 +127,14 @@ type Video struct {
 	LinkedModd   *Modd       // Modd struct associated with this video file
 }
 
+func (video Video) String() string {
+	var result strings.Builder
+
+	result.WriteString(fmt.Sprintf(`{ %x }`, video.SHA256Hash))
+
+	return result.String()
+}
+
 // MarshalJSON provides the functionality to convert the Video struct to a JSON
 // format
 func (video Video) MarshalJSON() ([]byte, error) {
@@ -175,7 +183,7 @@ func determineLocation(location string) string {
 // computeHash reads in the video file and creates an SHA-256 hash from it.
 func (video *Video) computeHash(done chan bool) {
 	hash := sha256.New()
-	data := make([]byte, video.FileStat.Size())
+	data := make([]byte, video.FileStat.Size()/10)
 	file, err := os.OpenFile(video.Location, os.O_RDONLY, 0755)
 	if err != nil {
 		log.Print(err)
@@ -185,7 +193,7 @@ func (video *Video) computeHash(done chan bool) {
 	readCount, err := file.Read(data)
 	if err != nil {
 		log.Print(err)
-	} else if int64(readCount) != video.FileStat.Size() {
+	} else if int64(readCount) != video.FileStat.Size()/10 {
 		log.Print(errors.New("could not read entire file"))
 	}
 
@@ -195,7 +203,7 @@ func (video *Video) computeHash(done chan bool) {
 	}
 
 	video.SHA256Hash = hash.Sum(nil)
-
+	data = nil // Hopefully, that clears up the RAM
 	done <- true
 }
 

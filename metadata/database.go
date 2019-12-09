@@ -86,7 +86,6 @@ func (modd Modd) UpdateModdInDb(db *sql.DB) error {
 		return err
 	}
 	tempModd.DateTimeActual = time.Unix(timeSecs, 0)
-	// fmt.Printf("tempModd: '%v'\n", tempModd.String())
 
 	// Construct SQL statement
 	needsUpdate := false
@@ -136,7 +135,6 @@ func (modd Modd) UpdateModdInDb(db *sql.DB) error {
 	statementStr.WriteString(fmt.Sprintf(` WHERE checkCode LIKE %d`, modd.CheckCode))
 
 	if needsUpdate {
-		// fmt.Printf("Update statement: '%s'\n", statementStr.String())
 		statement, err := db.Prepare(statementStr.String())
 		if err != nil {
 			return err

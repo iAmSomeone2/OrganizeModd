@@ -14,8 +14,8 @@ import (
 const testDir string = "/home/bdavidson/Videos/Home_Videos/"
 const testDbPath string = "./db/library.sqlite"
 
-func importModds(root string) metadata.ModdList {
-	moddList := metadata.MakeModdList(10)
+func importModds(root string) metadata.ModdSet {
+	moddList := metadata.MakeModdSet(10)
 
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() && strings.ToLower(filepath.Ext(path)) == ".modd" {
@@ -37,7 +37,7 @@ func importModds(root string) metadata.ModdList {
 
 			moddList.Append(metadata.GetModd(moddText, path))
 		} else if info.IsDir() && path != root {
-			// Follow directory and append the results to the current ModdList
+			// Follow directory and append the results to the current ModdSet
 			moddList.Concat(importModds(path))
 		}
 		return nil
@@ -49,7 +49,7 @@ func importModds(root string) metadata.ModdList {
 	return moddList
 }
 
-func updateModdTable(list metadata.ModdList, db *sql.DB) {
+func updateModdTable(list metadata.ModdSet, db *sql.DB) {
 	var i uint64
 	for i = 0; i < list.Len(); i++ {
 		modd, err := list.Get(i)
@@ -65,12 +65,17 @@ func updateModdTable(list metadata.ModdList, db *sql.DB) {
 
 func main() {
 	fmt.Printf("Looking for \"modd\" files...\n")
-	moddList := importModds(testDir)
+	moddSet := importModds(testDir)
 
 	// Open database connection
 	database := metadata.ConnectToDb(testDbPath)
 	defer database.Close()
 
-	fmt.Printf("Updating database...\n")
-	updateModdTable(moddList, database)
+	fmt.Printf("Updating modd database...\n")
+	updateModdTable(moddSet, database)
+
+	// Attempt to find videos associated with the modd files.
+	fmt.Printf("Looking for matching video files...\n")
+	vidMap := metadata.VideoMapFromModdSet(moddSet)
+	fmt.Printf("%s\n", vidMap.String())
 }

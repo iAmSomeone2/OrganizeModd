@@ -5,6 +5,8 @@
 
 # Binaries
 **/organizemodd
+**/[Cc]make-[Bb]uild-[Dd]ebug/
+**/[Cc]make-[Bb]uild-[Rr]elease/
 
 # Database files
 **/db/*
