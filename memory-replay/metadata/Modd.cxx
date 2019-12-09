@@ -4,7 +4,7 @@
 
 #include "Modd.hxx"
 
-Modd::Modd(const std::filesystem::path& moddFilePath) {
+Modd::Modd(const fs::path& moddFilePath) {
     bool readArray = false;
 
     // Get the name of the modd file
@@ -51,7 +51,7 @@ Modd::Modd(const std::filesystem::path& moddFilePath) {
                 this->setActualTime(TimeZone::CST);
             } else if (key == "Duration") {
                 this->m_duration = std::stof(value, nullptr);
-            } else if (key == "Filesize") {
+            } else if (key == "FileSize") {
                 this->m_fileSize = std::stoull(value, nullptr, 10);
             } else if (key == "VTList") {
                 if (value == "[") {
@@ -65,11 +65,22 @@ Modd::Modd(const std::filesystem::path& moddFilePath) {
                 readArray = false;
                 continue;
             }
-            std::cout << "VT entry seen and ignored." << std::endl;
+            this->m_vtList.push_back(new VT(line));
         }
     }
 }
 
+Modd::~Modd() {
+    for (auto& vt : this->m_vtList) {
+        delete vt;
+    }
+}
+
+/**
+ * Converts a char vector to a string.
+ * @param txt char vector
+ * @return string object made from txt
+ */
 std::string Modd::vecToString(std::vector<char> txt) {
     std::string result;
 
@@ -81,12 +92,23 @@ std::string Modd::vecToString(std::vector<char> txt) {
     return result;
 }
 
+/**
+ * Removes all superfluous text from the provided string.
+ * @param moddText raw text from .modd file.
+ * @param size number of characters in raw text.
+ * @return processed string.
+ */
 std::string Modd::cleanText(char* moddText, std::size_t size) {
     std::string result;
     result.copy(moddText, size);
     return cleanText(result);
 }
 
+/**
+ * Removes all superfluous text from the provided string.
+ * @param moddText raw text from .modd file.
+ * @return processed string.
+ */
 std::string Modd::cleanText(std::string& moddText) {
     std::string result;
 
