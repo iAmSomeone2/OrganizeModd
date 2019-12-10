@@ -4,6 +4,8 @@
 
 #include "Modd.hxx"
 
+using namespace memory_replay;
+
 Modd::Modd(const fs::path& moddFilePath) {
     bool readArray = false;
 
@@ -132,13 +134,13 @@ std::string Modd::cleanText(std::string& moddText) {
     return result;
 }
 
-std::string replaceFirst(std::string& s, const std::string& toReplace, const std::string& replaceWith) {
+std::string Modd::replaceFirst(std::string& s, const std::string& toReplace, const std::string& replaceWith) {
     std::size_t pos = s.find(toReplace);
     if (pos == std::string::npos) return s;
     return s.replace(pos, toReplace.length(), replaceWith);
 }
 
-std::string replaceAll(std::string& s, const std::string& toReplace, const std::string& replaceWith) {
+std::string Modd::replaceAll(std::string& s, const std::string& toReplace, const std::string& replaceWith) {
     std::string result;
     std::string old;
     do {

@@ -4,7 +4,7 @@ project(memory-replay VERSION 0.1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_CXX_DEBUG_FLAGS "${CMAKE_CXX_DEBUG_FLAGS} -Wall -Og")
+# set(CMAKE_CXX_DEBUG_FLAGS "${CMAKE_CXX_DEBUG_FLAGS} -Wall -Og")
 set(CMAKE_CXX_RELEASE_FLAGS "${CMAKE_CXX_RELEASE_FLAGS} -march=native -O3")
 
 set(METADATA_SOURCES
@@ -14,9 +14,18 @@ set(METADATA_SOURCES
 
 find_package(SQLite3 REQUIRED)
 
+# Metadata static lib
 add_library(metadata STATIC ${METADATA_SOURCES})
-target_link_libraries(metadata SQLite::SQLite3)
-target_include_directories(metadata SYSTEM PRIVATE ${SQLite3_LIBRARIES})
+target_compile_options(metadata PRIVATE -Wall)
+target_compile_features(metadata PUBLIC cxx_auto_type cxx_nullptr cxx_range_for)
 
+# Database static lib
+add_library(database STATIC memory-replay/Database.cxx memory-replay/Database.hxx)
+target_link_libraries(database SQLite::SQLite3)
+target_include_directories(database SYSTEM PRIVATE ${SQLite3_LIBRARIES})
+
+# Output executable
 add_executable(memory-replay memory-replay/main.cxx)
-target_link_libraries(memory-replay PRIVATE metadata)
+target_compile_options(memory-replay PRIVATE -Wall)
+target_compile_features(memory-replay PUBLIC cxx_auto_type cxx_range_for)
+target_link_libraries(memory-replay PRIVATE metadata database)

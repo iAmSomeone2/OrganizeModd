@@ -1,5 +1,7 @@
 #include "VT.hxx"
 
+using namespace memory_replay;
+
 VT::VT(std::string vtText) {
     // Value 0
     std::string value;
