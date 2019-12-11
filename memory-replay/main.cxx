@@ -30,6 +30,16 @@ int main() {
 
     Database db(fs::path("library.db"));
 
+    // Add modds to db
+    for (auto& modd : moddList) {
+        db.addEntry(*modd);
+    }
+
+    // Add videos to db
+    for (auto& video : videoList) {
+        db.addEntry(*video);
+    }
+
     // Clean up the videoList before exiting
     for (auto& video : videoList) {
         delete video;

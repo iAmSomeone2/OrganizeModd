@@ -12,17 +12,17 @@ set(METADATA_SOURCES
     memory-replay/metadata/VT.cxx memory-replay/metadata/VT.hxx
     memory-replay/metadata/Video.cxx memory-replay/metadata/Video.hxx)
 
-find_package(SQLite3 REQUIRED)
-
 # Metadata static lib
 add_library(metadata STATIC ${METADATA_SOURCES})
 target_compile_options(metadata PRIVATE -Wall)
 target_compile_features(metadata PUBLIC cxx_auto_type cxx_nullptr cxx_range_for)
 
 # Database static lib
+find_package(SQLite3 REQUIRED)
+find_package(Boost 1.29.0 REQUIRED)
 add_library(database STATIC memory-replay/Database.cxx memory-replay/Database.hxx)
 target_link_libraries(database SQLite::SQLite3)
-target_include_directories(database SYSTEM PRIVATE ${SQLite3_LIBRARIES})
+target_include_directories(database SYSTEM PRIVATE ${SQLite3_LIBRARIES} ${Boost_INCLUDE_DIRS})
 
 # Output executable
 add_executable(memory-replay memory-replay/main.cxx)

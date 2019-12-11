@@ -9,6 +9,7 @@
 #include "Modd.hxx"
 
 namespace fs = std::filesystem;
+using std::string;
 
 namespace memory_replay {
     static const std::string VIDEO_EXTS[] = {".mpg", ".mpeg", ".mp4", ".m4v", ".mkv"};
@@ -42,20 +43,40 @@ namespace memory_replay {
         {VIDEO_EXTS[4], Container::MKV}
     });
 
+    typedef std::vector<char> Hash;
+
     class Video {
     public:
         explicit Video(const Modd& modd);
+
+        // Getters
+        /**
+         * Gets the name of the video.
+         * @return string containing name.
+        */
+        string      getName()           const { return this->m_name; };
+        fs::path    getLocation()       const { return this->m_location; };
+        uint64_t    getCreationTime()   const { return this->m_creationTime; };
+        double      getDuration()       const { return this->m_duration; };
+        Hash        getHash()           const { return this->m_hash; };
+        Container   getContainer()      const { return this->m_container; };
+        VideoCodec  getVideoCodec()     const { return this->m_vidCodec; };
+        AudioCodec  getAudioCodec()     const { return this->m_audCodec; };
+        const Modd* getLinkedModd()     const { return this->m_linkedModd; };
     private:
-        std::string         m_name;         // Filename
+        string              m_name;         // Filename
         fs::path            m_location;     // Path to location on system
         uint64_t            m_creationTime; // Unix-based creation time
         double              m_duration;     // Duration in seconds
-        std::vector<char>   m_hash;         // SHA-256 based hash
+        Hash                m_hash;         // SHA-256 based hash
         Container           m_container;    // Container type
         VideoCodec          m_vidCodec;     // Video encoding codec
         AudioCodec          m_audCodec;     // Audio encoding codec
         const Modd*         m_linkedModd;   // Modd associated with this video.
 
+        /**
+         * Confirms location of video file based on location of associated Modd. 
+        */
         fs::path determineLocation();
     };
 };

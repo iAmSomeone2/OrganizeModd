@@ -1,4 +1,7 @@
 #include <iostream>
+#include <sstream>
+
+#include <boost/format.hpp>
 
 #include "Database.hxx"
 
@@ -34,6 +37,31 @@ Database::~Database() {
     }
 }
 
+Rows Database::query(const string& stmt) {
+    Rows rows;
+
+    int result = sqlite3_exec(
+        this->m_dbHandle,
+        stmt.c_str(),
+        this->handleQuery,
+        &rows,
+        nullptr
+    );
+
+    return rows;
+}
+
+int Database::handleQuery(void* rows, int numCols, char** colVals, char** colNames) {
+    auto rowsPtr = static_cast<Rows*>(rows);
+    Row row;
+    for (int i = 0; i < numCols; i++) {
+        row[string(colNames[i])] = string(colVals[i]);
+    }
+
+    rowsPtr->push_back(row);
+    return 0;
+}
+
 /**
  * Sends a one-off statement to the database. Useful for creating tables and updating
  * individual entries.
@@ -66,4 +94,53 @@ int Database::execStatement(string statement, unsigned int flags) {
     }
 
     return 0;
+}
+
+bool Database::contains(const Modd& modd) {
+    std::stringstream sqlStr;
+    sqlStr << boost::format("SELECT * FROM modd WHERE checkCode == %d") % modd.getCheckCode();
+
+    Rows rows = this->query(sqlStr.str());
+
+    return rows.size() != 0;
+}
+
+bool Database::contains(const Video& video) {
+    std::stringstream sqlStr;
+    // TODO: update to use hashes.
+    sqlStr << boost::format("SELECT * FROM video WHERE moddCheckCode == %d") % video.getLinkedModd()->getCheckCode();
+
+    Rows rows = this->query(sqlStr.str());
+
+    return rows.size() != 0;
+}
+
+void Database::addEntry(const Modd& modd) {
+    // Return early if the item is already there.
+    if (this->contains(modd)) return;
+
+    std::stringstream sqlStr;
+    sqlStr << boost::format(MODD_INS_STR) % modd.getCheckCode() % modd.getName() % modd.getDateTimeActual()
+        % modd.getDuration() % modd.getFileSize() % modd.getPath().string();
+
+    int result = this->execStatement(sqlStr.str(), 0);
+    if (result != 0) {
+        string errMsg = sqlite3_errmsg(this->m_dbHandle);
+        throw std::runtime_error(errMsg);
+    }
+}
+
+void Database::addEntry(const Video& video) {
+    // Return early if the item is already there.
+    if (this->contains(video)) return;
+
+    std::stringstream sqlStr;
+    sqlStr << boost::format(VIDEO_INS_STR) % video.getName() % video.getLinkedModd()->getCheckCode() % video.getCreationTime()
+        % video.getDuration() % video.getLocation().string() % video.getLinkedModd()->getFileSize();
+
+    int result = this->execStatement(sqlStr.str(), 0);
+    if (result != 0) {
+        string errMsg = sqlite3_errmsg(this->m_dbHandle);
+        throw std::runtime_error(errMsg);
+    }
 }
