@@ -7,14 +7,21 @@
 #include "Database.hxx"
 
 using namespace memory_replay;
+namespace fs = std::filesystem;
 
 const static std::filesystem::path testModd("/home/bdavidson/Videos/Home_Videos/1-26-2010/20100116110730.modd");
 const static std::filesystem::path testPath("/home/bdavidson/Videos/Home_Videos/");
 
-int main() {
+int main(int argc, char** argv) {
+    fs::path searchDir("./");
+
+    if (argc > 1) {
+        searchDir = argv[1];
+    }
+
     std::vector<Modd*> moddList;
 
-    for (auto& p : std::filesystem::recursive_directory_iterator(testPath)) {
+    for (auto& p : fs::recursive_directory_iterator(searchDir)) {
         if (p.is_regular_file()) {
             auto filePath = p.path();
             if (filePath.extension()  == ".modd") {

@@ -14,6 +14,8 @@ using std::string;
 namespace memory_replay {
     static const std::string VIDEO_EXTS[] = {".mpg", ".mpeg", ".mp4", ".m4v", ".mkv"};
 
+    static const uint32_t READ_SIZE = 5243000;
+
     enum class Container {
         MPEG,       // MPEG-1/2 container.
         MP4,        // MPEG-4 container.
@@ -43,7 +45,7 @@ namespace memory_replay {
         {VIDEO_EXTS[4], Container::MKV}
     });
 
-    typedef std::vector<char> Hash;
+    typedef std::vector<uint8_t> Hash;
 
     class Video {
     public:
@@ -78,6 +80,8 @@ namespace memory_replay {
          * Confirms location of video file based on location of associated Modd. 
         */
         fs::path determineLocation();
+
+        void determineHash();
     };
 };
 
