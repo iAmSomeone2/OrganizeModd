@@ -37,6 +37,12 @@ Database::~Database() {
     }
 }
 
+/**
+ * Finds Rows matching the provided statement.
+ * 
+ * @param stmt SQL select statement.
+ * @return a vector containing all matched rows.
+*/
 Rows Database::query(const string& stmt) {
     Rows rows;
 
@@ -51,6 +57,10 @@ Rows Database::query(const string& stmt) {
     return rows;
 }
 
+/**
+ * Callback for handling db queries.
+ * Appends a row (map<string, string>) to a Rows vector.
+*/
 int Database::handleQuery(void* rows, int numCols, char** colVals, char** colNames) {
     auto rowsPtr = static_cast<Rows*>(rows);
     Row row;
@@ -96,6 +106,11 @@ int Database::execStatement(string statement, unsigned int flags) {
     return 0;
 }
 
+/**
+ * Checks if the database contains the Modd object.
+ * @param modd object to search for
+ * @return true if found in db. false, otherwise.
+*/
 bool Database::contains(const Modd& modd) {
     std::stringstream sqlStr;
     sqlStr << boost::format("SELECT * FROM modd WHERE checkCode == %d") % modd.getCheckCode();
@@ -105,6 +120,11 @@ bool Database::contains(const Modd& modd) {
     return rows.size() != 0;
 }
 
+/**
+ * Checks if the database contains the Video object.
+ * @param video object to search for
+ * @return true if found in db. false, otherwise.
+*/
 bool Database::contains(const Video& video) {
     std::stringstream sqlStr;
     // TODO: update to use hashes.
@@ -115,6 +135,10 @@ bool Database::contains(const Video& video) {
     return rows.size() != 0;
 }
 
+/**
+ * Adds a modd entry to the database.
+ * @param Modd object to insert
+*/
 void Database::addEntry(const Modd& modd) {
     // Return early if the item is already there.
     if (this->contains(modd)) return;
@@ -130,6 +154,10 @@ void Database::addEntry(const Modd& modd) {
     }
 }
 
+/**
+ * Adds a video entry to the database.
+ * @param video Video object to insert 
+*/
 void Database::addEntry(const Video& video) {
     // Return early if the item is already there.
     if (this->contains(video)) return;
