@@ -13,7 +13,10 @@ set(METADATA_SOURCES
     memory-replay/metadata/Video.cxx memory-replay/metadata/Video.hxx)
 
 # Metadata static lib
+find_package(OpenSSL REQUIRED)
 add_library(metadata STATIC ${METADATA_SOURCES})
+target_link_libraries(metadata PRIVATE OpenSSL::Crypto)
+target_include_directories(metadata SYSTEM PRIVATE ${OPENSSL_INCLUDE_DIR})
 target_compile_options(metadata PRIVATE -Wall)
 target_compile_features(metadata PUBLIC cxx_auto_type cxx_nullptr cxx_range_for)
 
