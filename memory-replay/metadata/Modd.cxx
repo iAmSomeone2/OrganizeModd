@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <boost/algorithm/string.hpp>
 
 #include "Modd.hxx"
 
@@ -60,7 +61,9 @@ Modd::Modd(const fs::path& moddFilePath) {
                     readArray = true;
                 }
             } else {
-                std::cout << "Parsing '" << key << "' not currently supported." << std::endl;
+                // I can't track down why this is being funny.
+                // std::cout << "\nWeird file: " << moddFilePath.string() << std::endl;
+                // std::cout << "Parsing \'" << key << "\' not currently supported." << std::endl;
             }
         } else {
             if (line.find("]") != std::string::npos) {
@@ -112,24 +115,25 @@ std::string Modd::cleanText(char* moddText, std::size_t size) {
  * @return processed string.
  */
 std::string Modd::cleanText(std::string& moddText) {
-    std::string result;
-
     // Start by removing the unneeded lines of the file
-    result = replaceFirst(moddText, XML_HEADER, "");
-    result = replaceFirst(result, DATA_HEADER, "");
-    result = replaceFirst(result, DATA_FOOTER, "");
+    auto result = boost::algorithm::replace_first_copy(moddText, XML_HEADER, "");
+    boost::algorithm::replace_first(result, DATA_HEADER, "");
+    boost::algorithm::replace_first(result, DATA_FOOTER, "");
 
     // Clean up tags
-    result = replaceAll(result, "<key>", "");
-    result = replaceAll(result, "</key>", ",");
-    result = replaceAll(result, "<string>", "");
-    result = replaceAll(result, "</string>", "\n");
-    result = replaceAll(result, "<real>", "");
-    result = replaceAll(result, "</real>", "\n");
-    result = replaceAll(result, "<integer>", "");
-    result = replaceAll(result, "</integer>", "\n");
-    result = replaceAll(result, "<array>", "[\n");
-    result = replaceAll(result, "</array>", "]");
+    boost::algorithm::replace_all(result, "<key>", "");
+    boost::algorithm::replace_all(result, "</key>", ",");
+    boost::algorithm::replace_all(result, "<string>", "");
+    boost::algorithm::replace_all(result, "</string>", "\n");
+    boost::algorithm::replace_all(result, "<real>", "");
+    boost::algorithm::replace_all(result, "</real>", "\n");
+    boost::algorithm::replace_all(result, "<integer>", "");
+    boost::algorithm::replace_all(result, "</integer>", "\n");
+    boost::algorithm::replace_all(result, "<array>", "[\n");
+    boost::algorithm::replace_all(result, "</array>", "]");
+
+    boost::algorithm::trim_left(result);
+    boost::algorithm::trim_right(result);
 
     return result;
 }

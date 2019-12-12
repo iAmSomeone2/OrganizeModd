@@ -15,6 +15,7 @@ extern "C" {
 
 namespace fs = std::filesystem;
 using std::string;
+using std::vector;
 using std::map;
 
 namespace memory_replay {
@@ -22,15 +23,15 @@ namespace memory_replay {
     "CREATE TABLE IF NOT EXISTS modd (checkCode INTEGER UNIQUE, name TEXT, dateTime INTEGER, videoDuration REAL, videoFileSize INTEGER, moddFileLocation TEXT UNIQUE, PRIMARY KEY(checkCode))";
     static const int PREPARE_MODD_LEN = 185;
     static const char PREPARE_VIDEO_TABLE[] = 
-    "CREATE TABLE IF NOT EXISTS video (id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, name TEXT, moddCheckCode TEXT UNIQUE, dateTime INTEGER, duration REAL, fileLocation TEXT, fileSize INTEGER, FOREIGN KEY(moddCheckCode) REFERENCES modd(checkCode))";
+    "CREATE TABLE IF NOT EXISTS video (hash BLOB PRIMARY KEY UNIQUE, name TEXT, moddCheckCode TEXT UNIQUE, dateTime INTEGER, duration REAL, fileLocation TEXT, fileSize INTEGER, FOREIGN KEY(moddCheckCode) REFERENCES modd(checkCode))";
     static const int PREPARE_VIDEO_LEN = 242;
 
     // USE WITH BOOST::FORMAT
-    static const string MODD_INS_STR = "INSERT INTO \"modd\" (checkCode, name, dateTime, videoDuration, videoFileSize, moddFileLocation) VALUES (%d, \"%s\", %d, %0.15f, %d, \"%s\")";
-    static const string VIDEO_INS_STR = "INSERT INTO \"video\" (name, moddCheckCode, dateTime, duration, fileLocation, fileSize) VALUES (\"%s\", %d, %d, %0.15f, \"%s\", %d)";
+    static const string MODD_INS_STR = "INSERT INTO \"modd\" (checkCode, name, dateTime, videoDuration, videoFileSize, moddFileLocation) VALUES (?, ?, ?, ?, ?, ?)";
+    static const string VIDEO_INS_STR = "INSERT INTO \"video\" (hash, name, moddCheckCode, dateTime, duration, fileLocation, fileSize) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
     typedef map<string, string> Row;    // Wraps a map of strings in a Row type.
-    typedef std::vector<Row> Rows;      // Wraps a vector of Row(s) into a Rows type.
+    typedef vector<Row> Rows;      // Wraps a vector of Row(s) into a Rows type.
 
     class Database {
     public:
@@ -42,6 +43,9 @@ namespace memory_replay {
         void addEntry(const Modd& modd);
         void addEntry(const Video& video);
 
+        void addEntries(const vector<Modd*> modds);
+        void addEntries(const vector<Video*> videos);
+
         void updateEntry(const Modd& modd);
         void updateEntry(const Video& video);
 
@@ -50,6 +54,7 @@ namespace memory_replay {
     private:
         sqlite3 *m_dbHandle;
 
+        void sqliteError(const int& errCode);
         int execStatement(string statement, unsigned int flags);
         static int handleQuery(void* rows, int numCols, char** colVals, char** colNames);
     };

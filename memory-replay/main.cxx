@@ -21,6 +21,7 @@ int main(int argc, char** argv) {
 
     std::vector<Modd*> moddList;
 
+    std::cout << "Searching for modd files..." << std::endl;
     for (auto& p : fs::recursive_directory_iterator(searchDir)) {
         if (p.is_regular_file()) {
             auto filePath = p.path();
@@ -30,22 +31,21 @@ int main(int argc, char** argv) {
         }
     }
 
+    Database db(fs::path("library.db"));
+
+    // Add modds to db
+    std::cout << "Updating modd files in database..." << std::endl;
+    db.addEntries(moddList);
+
+    std::cout << "Searching for video files..." << std::endl;
     std::vector<Video*> videoList;
     for (auto& modd : moddList) {
         videoList.push_back(new Video(*modd));
     }
 
-    Database db(fs::path("library.db"));
-
-    // Add modds to db
-    for (auto& modd : moddList) {
-        db.addEntry(*modd);
-    }
-
     // Add videos to db
-    for (auto& video : videoList) {
-        db.addEntry(*video);
-    }
+    std::cout << "Updating video files in database..." << std::endl;
+    db.addEntries(videoList);
 
     // Clean up the videoList before exiting
     for (auto& video : videoList) {

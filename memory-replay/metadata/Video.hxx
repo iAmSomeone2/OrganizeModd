@@ -12,14 +12,15 @@ namespace fs = std::filesystem;
 using std::string;
 
 namespace memory_replay {
-    static const std::string VIDEO_EXTS[] = {".mpg", ".mpeg", ".mp4", ".m4v", ".mkv"};
+    static const std::string VIDEO_EXTS[] = {".mpg", ".mpeg", ".mp4", ".m4v", ".mkv", ".avi"};
 
-    static const uint32_t READ_SIZE = 5243000;
+    static const uint32_t READ_SIZE = 10240000; // 10MiB
 
     enum class Container {
         MPEG,       // MPEG-1/2 container.
         MP4,        // MPEG-4 container.
         MKV,        // Matroska container.
+        AVI,        // AVI container.
         UNKNOWN     // Unsupported container.
     };
 
@@ -42,7 +43,8 @@ namespace memory_replay {
         {VIDEO_EXTS[1], Container::MPEG},
         {VIDEO_EXTS[2], Container::MP4},
         {VIDEO_EXTS[3], Container::MP4},
-        {VIDEO_EXTS[4], Container::MKV}
+        {VIDEO_EXTS[4], Container::MKV},
+        {VIDEO_EXTS[5], Container::AVI}
     });
 
     typedef std::vector<uint8_t> Hash;

@@ -1,4 +1,7 @@
 #include <fstream>
+#include <iostream>
+#include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
 
 extern "C" {
 #include <openssl/sha.h>
@@ -27,14 +30,27 @@ Video::Video(const Modd& modd) {
     this->m_audCodec = AudioCodec::UNKNOWN;
     this->m_vidCodec = VideoCodec::UNKNOWN;
 
-    this->determineHash();
+    try {
+        this->determineHash();
+    } catch (const std::runtime_error& e) {
+        std::cerr << e.what() << ": " << this->m_location << std::endl;
+    }
+    
 }
 
 fs::path Video::determineLocation() {
     auto moddPath = this->m_linkedModd->getPath();
     fs::path videoPath;
     for (const auto& ext : VIDEO_EXTS) {
+        // Lower case
         videoPath = moddPath.replace_extension(ext);
+        if (fs::exists(videoPath)) {
+            break;
+        }
+        // Upper case
+        string upperExt = ext;
+        boost::to_upper(upperExt);
+        videoPath = moddPath.replace_extension(upperExt);
         if (fs::exists(videoPath)) {
             break;
         }
@@ -47,11 +63,11 @@ void Video::determineHash() {
     // Read in some of the file.
     std::ifstream videoFile(this->m_location);
     if (!videoFile.is_open()) {
-        throw std::runtime_error("Failed to open video file.");
+        throw std::runtime_error("Failed to open video file");
     }
 
     std::vector<char> fileData;
-    fileData.resize(5243000);
+    fileData.resize(READ_SIZE);
 
     videoFile.readsome(fileData.data(), fileData.size());
 
