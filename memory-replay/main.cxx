@@ -14,9 +14,14 @@ const static std::filesystem::path testPath("/home/bdavidson/Videos/Home_Videos/
 
 int main(int argc, char** argv) {
     fs::path searchDir("./");
+    fs::path outDir("./");
 
     if (argc > 1) {
         searchDir = argv[1];
+    }
+
+    if (argc > 2) {
+        outDir = argv[2];
     }
 
     std::vector<Modd*> moddList;
@@ -46,6 +51,13 @@ int main(int argc, char** argv) {
     // Add videos to db
     std::cout << "Updating video files in database..." << std::endl;
     db.addEntries(videoList);
+
+
+    // Relocate a few files.
+    std::cout << "Relocating misplaced videos..." << std::endl;
+    for (int i = 0; i < 10; i++) {
+        videoList[i]->relocate(outDir);
+    }
 
     // Clean up the videoList before exiting
     for (auto& video : videoList) {

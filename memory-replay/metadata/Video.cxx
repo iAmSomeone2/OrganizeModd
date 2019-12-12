@@ -28,8 +28,13 @@ Video::Video(const Modd& modd) {
     }
 
     this->m_audCodec = AudioCodec::UNKNOWN;
-    this->m_vidCodec = VideoCodec::UNKNOWN;
 
+    if (this->m_container == Container::MPEG) {
+        this->m_vidCodec = VideoCodec::MPEG2;
+    } else {
+        this->m_vidCodec = VideoCodec::UNKNOWN;
+    }
+    
     try {
         this->determineHash();
     } catch (const std::runtime_error& e) {
@@ -79,4 +84,40 @@ void Video::determineHash() {
     SHA256_Init(&sha256);
     SHA256_Update(&sha256, fileData.data(), fileData.size());
     SHA256_Final(this->m_hash.data(), &sha256);
+}
+
+/**
+ * Uses the creation time data from the video to determine the appropriate directory structure. 
+*/
+bool Video::relocate(const fs::path& rootDir) {
+    uint64_t dateTime = this->m_creationTime;
+
+    // Don't forget to add 1970 later.
+    uint64_t year = dateTime / YEAR_SECS;
+    Month month = Month(static_cast<int>((dateTime - (year * YEAR_SECS)) / MONTH_SECS));
+
+    std::stringstream newPath;
+    newPath << boost::format("%d/%s/") % (year+1970) % MONTH_STR[month];
+
+    fs::path outDir = rootDir;
+    outDir.concat(newPath.str());
+    
+    bool success;
+
+    try {
+        success = fs::create_directories(outDir);
+    } catch (const fs::filesystem_error& e) {
+        std::cerr << e.what() <<  std::endl;
+    }
+
+    fs::path outPath = outDir;
+    outPath.concat(this->m_name);
+
+    try {
+        success = fs::copy_file(this->m_location, outPath);
+    } catch (const fs::filesystem_error& e) {
+        std::cerr << e.what() << std::endl;
+    }
+
+    return success;
 }

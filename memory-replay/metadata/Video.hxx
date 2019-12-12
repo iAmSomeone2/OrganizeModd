@@ -16,6 +16,9 @@ namespace memory_replay {
 
     static const uint32_t READ_SIZE = 10240000; // 10MiB
 
+    static const uint64_t YEAR_SECS = 31557600;
+    static const uint64_t MONTH_SECS = 2592000;
+
     enum class Container {
         MPEG,       // MPEG-1/2 container.
         MP4,        // MPEG-4 container.
@@ -38,6 +41,36 @@ namespace memory_replay {
         UNKNOWN     // Unsupported audio codec
     };
 
+    enum class Month {
+        January = 1,
+        February,
+        March,
+        April,
+        May,
+        June,
+        July,
+        August,
+        September,
+        October,
+        November,
+        December,
+    };
+
+    static std::map<Month, const string> MONTH_STR = {
+        {Month::January, "January"},
+        {Month::February, "February"},
+        {Month::March, "March"},
+        {Month::April, "April"},
+        {Month::May, "May"},
+        {Month::June, "June"},
+        {Month::July, "July"},
+        {Month::August, "August"},
+        {Month::September, "September"},
+        {Month::October, "October"},
+        {Month::November, "November"},
+        {Month::December, "December"}
+    };
+
     static const std::map<std::string, Container> CONTAINER_MAP({
         {VIDEO_EXTS[0], Container::MPEG},
         {VIDEO_EXTS[1], Container::MPEG},
@@ -52,6 +85,8 @@ namespace memory_replay {
     class Video {
     public:
         explicit Video(const Modd& modd);
+
+        bool relocate(const fs::path& rootDir);
 
         // Getters
         /**
