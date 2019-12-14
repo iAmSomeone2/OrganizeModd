@@ -34,6 +34,8 @@ namespace memory_replay {
 
         ~Modd();
 
+        bool relocate(const fs::path& outDir);
+
         // Getters
         std::string         getName()               const {return this->m_name;};
         fs::path            getPath()               const {return this->m_location;};

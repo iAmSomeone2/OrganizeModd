@@ -1,0 +1,479 @@
+[
+    {
+        "Job": {
+            "Audio": {
+                "AudioList": [
+                    {
+                        "Bitrate": 192,
+                        "DRC": 0.0,
+                        "Encoder": "vorbis",
+                        "Gain": 0.0,
+                        "Mixdown": "stereo",
+                        "Quality": -3.0,
+                        "Samplerate": 0,
+                        "Track": 0
+                    }
+                ],
+                "CopyMask": [
+                    "copy:aac"
+                ],
+                "FallbackEncoder": "av_aac"
+            },
+            "Destination": {
+                "AlignAVStart": false,
+                "ChapterList": [
+                    {
+                        "Duration": {
+                            "Hours": 0,
+                            "Minutes": 6,
+                            "Seconds": 23,
+                            "Ticks": 34483068
+                        },
+                        "Name": "Chapter 1"
+                    }
+                ],
+                "ChapterMarkers": false,
+                "File": "/home/bdavidson/Videos/20110104171833.mkv",
+                "InlineParameterSets": false,
+                "Mp4Options": {
+                    "IpodAtom": false,
+                    "Mp4Optimize": false
+                },
+                "Mux": "mkv"
+            },
+            "Filters": {
+                "FilterList": [
+                    {
+                        "ID": 3,
+                        "Settings": {
+                            "block-height": "16",
+                            "block-thresh": "40",
+                            "block-width": "16",
+                            "filter-mode": "2",
+                            "mode": "3",
+                            "motion-thresh": "1",
+                            "spatial-metric": "2",
+                            "spatial-thresh": "1"
+                        }
+                    },
+                    {
+                        "ID": 4,
+                        "Settings": {
+                            "mode": "7"
+                        }
+                    },
+                    {
+                        "ID": 6,
+                        "Settings": {
+                            "mode": 0
+                        }
+                    },
+                    {
+                        "ID": 8,
+                        "Settings": {
+                            "cb-spatial": "1",
+                            "cb-temporal": "3",
+                            "cr-spatial": "1",
+                            "cr-temporal": "3",
+                            "y-spatial": "2",
+                            "y-temporal": "2"
+                        }
+                    },
+                    {
+                        "ID": 12,
+                        "Settings": {
+                            "crop-bottom": 0,
+                            "crop-left": 0,
+                            "crop-right": 0,
+                            "crop-top": 0,
+                            "height": 480,
+                            "width": 720
+                        }
+                    }
+                ]
+            },
+            "Metadata": {
+                "Name": "20110104171833"
+            },
+            "PAR": {
+                "Den": 27,
+                "Num": 32
+            },
+            "SequenceID": 0,
+            "Source": {
+                "Angle": 0,
+                "Path": "/home/bdavidson/Videos/Reorganized_Vids/2011/01_January/20110104171833.mpg",
+                "Range": {
+                    "End": 1,
+                    "Start": 1,
+                    "Type": "chapter"
+                },
+                "Title": 1
+            },
+            "Subtitle": {
+                "Search": {
+                    "Burn": true,
+                    "Default": false,
+                    "Enable": false,
+                    "Forced": true
+                },
+                "SubtitleList": []
+            },
+            "Video": {
+                "ColorFormat": 0,
+                "ColorMatrix": 6,
+                "ColorPrimaries": 6,
+                "ColorRange": 1,
+                "ColorTransfer": 1,
+                "Encoder": "nvenc_h265",
+                "Level": "auto",
+                "Options": "",
+                "Preset": "medium",
+                "Profile": "auto",
+                "QSV": {
+                    "AsyncDepth": 4,
+                    "Decode": false
+                },
+                "Quality": 16.0,
+                "Tune": "",
+                "Turbo": false,
+                "TwoPass": false
+            }
+        },
+        "Title": {
+            "AngleCount": 1,
+            "AudioList": [
+                {
+                    "Attributes": {
+                        "AltCommentary": false,
+                        "Commentary": false,
+                        "Default": false,
+                        "Normal": false,
+                        "Secondary": false,
+                        "VisuallyImpaired": false
+                    },
+                    "BitRate": 256000,
+                    "ChannelCount": 2,
+                    "ChannelLayout": 3,
+                    "ChannelLayoutName": "stereo",
+                    "Codec": 2048,
+                    "CodecName": "ac3",
+                    "CodecParam": 86019,
+                    "Description": "Any (AC3) (2.0 ch) (256 kbps)",
+                    "LFECount": 0,
+                    "Language": "Any",
+                    "LanguageCode": "any",
+                    "SampleRate": 48000
+                }
+            ],
+            "ChapterList": [
+                {
+                    "Duration": {
+                        "Hours": 0,
+                        "Minutes": 6,
+                        "Seconds": 23,
+                        "Ticks": 34483068
+                    },
+                    "Name": "Chapter 1"
+                }
+            ],
+            "Color": {
+                "Format": 0,
+                "Matrix": 6,
+                "Primary": 6,
+                "Range": 1,
+                "Transfer": 1
+            },
+            "Crop": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "Duration": {
+                "Hours": 0,
+                "Minutes": 6,
+                "Seconds": 23,
+                "Ticks": 34483068
+            },
+            "FrameRate": {
+                "Den": 900900,
+                "Num": 27000000
+            },
+            "Geometry": {
+                "Height": 480,
+                "PAR": {
+                    "Den": 27,
+                    "Num": 32
+                },
+                "Width": 720
+            },
+            "Index": 1,
+            "InterlaceDetected": false,
+            "Metadata": {},
+            "Name": "20110104171833",
+            "Path": "/home/bdavidson/Videos/Reorganized_Vids/2011/01_January/20110104171833.mpg",
+            "Playlist": -1,
+            "SubtitleList": [
+                {
+                    "Attributes": {
+                        "4By3": false,
+                        "Children": false,
+                        "ClosedCaption": true,
+                        "Commentary": false,
+                        "Default": false,
+                        "Forced": false,
+                        "Large": false,
+                        "Letterbox": false,
+                        "Normal": false,
+                        "PanScan": false,
+                        "Wide": false
+                    },
+                    "Format": "text",
+                    "Language": "Any, Closed Caption [CC608]",
+                    "LanguageCode": "any",
+                    "Source": 1,
+                    "SourceName": "CC608"
+                }
+            ],
+            "Type": 2,
+            "VideoCodec": "mpeg2video"
+        },
+        "uiSettings": {
+            "AlignAVStart": false,
+            "AudioAllowAACPass": true,
+            "AudioAllowAC3Pass": false,
+            "AudioAllowDTSHDPass": false,
+            "AudioAllowDTSPass": false,
+            "AudioAllowEAC3Pass": false,
+            "AudioAllowFLACPass": false,
+            "AudioAllowMP3Pass": false,
+            "AudioAllowTRUEHDPass": false,
+            "AudioBitrate": "192",
+            "AudioCopyMask": [
+                "copy:aac"
+            ],
+            "AudioEncoder": "vorbis",
+            "AudioEncoderFallback": "av_aac",
+            "AudioLanguageList": [],
+            "AudioList": [
+                {
+                    "AudioBitrate": 160,
+                    "AudioCompressionLevel": -1.0,
+                    "AudioDitherMethod": "auto",
+                    "AudioEncoder": "av_aac",
+                    "AudioMixdown": "stereo",
+                    "AudioNormalizeMixLevel": false,
+                    "AudioSamplerate": "auto",
+                    "AudioTrackDRCSlider": 0.0,
+                    "AudioTrackGainSlider": 0.0,
+                    "AudioTrackQuality": 1.0,
+                    "AudioTrackQualityEnable": false
+                }
+            ],
+            "AudioMixdown": "stereo",
+            "AudioSamplerate": "auto",
+            "AudioSecondaryEncoderMode": true,
+            "AudioTrack": "0",
+            "AudioTrackBitrateEnable": true,
+            "AudioTrackDRCSlider": 0.90000000000000002,
+            "AudioTrackDRCValue": "Off",
+            "AudioTrackGainSlider": 0.0,
+            "AudioTrackGainValue": "0dB",
+            "AudioTrackName": "",
+            "AudioTrackQuality": -1.0,
+            "AudioTrackQualityEnable": false,
+            "AudioTrackQualityValue": "-2.0",
+            "AudioTrackQualityX": -2.0,
+            "AudioTrackSelectionBehavior": "first",
+            "ChapterMarkers": true,
+            "ChildrenArray": [],
+            "Default": false,
+            "FileFormat": "av_mkv",
+            "Folder": false,
+            "FolderOpen": false,
+            "ImportFile": null,
+            "ImportLanguage": "und",
+            "ImportOffset": 0.0,
+            "InlineParameterSets": false,
+            "MetaAlbumArtist": "",
+            "MetaArtist": "",
+            "MetaComment": "",
+            "MetaDescription": "",
+            "MetaGenre": "",
+            "MetaLongDescription": "",
+            "MetaName": "20110104171833",
+            "MetaReleaseDate": "",
+            "Mp4HttpOptimize": false,
+            "Mp4iPodCompatible": false,
+            "PictureAutoCrop": true,
+            "PictureBottomCrop": 0.0,
+            "PictureChromaSmoothCustom": "",
+            "PictureChromaSmoothPreset": "off",
+            "PictureChromaSmoothTune": "none",
+            "PictureCombDetectCustom": "",
+            "PictureCombDetectPreset": "default",
+            "PictureDARWidth": 0,
+            "PictureDeblockCustom": "strength=strong:thresh=20:blocksize=8",
+            "PictureDeblockPreset": "off",
+            "PictureDeblockTune": "medium",
+            "PictureDeinterlaceCustom": "",
+            "PictureDeinterlaceDecomb": false,
+            "PictureDeinterlaceFilter": "decomb",
+            "PictureDeinterlacePreset": "default",
+            "PictureDenoiseCustom": "",
+            "PictureDenoiseFilter": "hqdn3d",
+            "PictureDenoisePreset": "light",
+            "PictureDenoiseTune": "none",
+            "PictureDetelecine": "off",
+            "PictureDetelecineCustom": "",
+            "PictureDisplayHeight": 480.0,
+            "PictureDisplayWidth": 853.0,
+            "PictureForceHeight": 0,
+            "PictureForceWidth": 0,
+            "PictureHeight": 1080.0,
+            "PictureHeightEnable": true,
+            "PictureItuPAR": false,
+            "PictureKeepRatio": true,
+            "PictureLeftCrop": 0.0,
+            "PictureLooseCrop": false,
+            "PictureModulus": "2",
+            "PicturePAR": "auto",
+            "PicturePARHeight": 27.0,
+            "PicturePARWidth": 32.0,
+            "PictureRightCrop": 0.0,
+            "PictureRotate": "disable=1",
+            "PictureSharpenCustom": "",
+            "PictureSharpenFilter": "off",
+            "PictureSharpenPreset": "",
+            "PictureSharpenTune": "",
+            "PictureTopCrop": 0.0,
+            "PictureWidth": 1920.0,
+            "PictureWidthEnable": true,
+            "Preferences": {
+                "ActivityFontSize": 8.0,
+                "AddCC": false,
+                "AutoScan": false,
+                "DiskFreeCheck": true,
+                "DiskFreeLimit": 2000.0,
+                "EncodeLogLocation": false,
+                "ExportDirectory": "/home/bdavidson/Desktop",
+                "LogLongevity": "immortal",
+                "LoggingLevel": "1",
+                "MinTitleDuration": 10.0,
+                "PreferredLanguage": "und",
+                "RemoveFinishedJobs": true,
+                "SrtDir": "/home/bdavidson/Videos",
+                "SyncTitleSettings": true,
+                "UseM4v": true,
+                "VideoQualityGranularity": "1",
+                "WhenComplete": "notify",
+                "allow_tweaks": false,
+                "auto_name": true,
+                "auto_name_template": "{source}",
+                "check_updates": "weekly",
+                "default_source": "/home/bdavidson/Videos/Reorganized_Vids/2011/01_January/20110104171833.mpg",
+                "destination_dir": "/home/bdavidson/Videos",
+                "hbfd": false,
+                "hbfd_feature": false,
+                "last_update_check": 0,
+                "live_duration": 15.0,
+                "preset_window_height": 1,
+                "preset_window_width": 1,
+                "presets_window_height": 600,
+                "presets_window_width": 300,
+                "preview_count": 10.0,
+                "preview_show_crop": false,
+                "preview_x": 274,
+                "preview_y": 100,
+                "reduce_hd_preview": true,
+                "update_skip_version": 0,
+                "use_dvdnav": true,
+                "version": "0.1",
+                "window_height": 902,
+                "window_width": 1256
+            },
+            "PreferredLanguage": "und",
+            "PresetCategory": "new",
+            "PresetDescription": "H.264 video (up to 1080p30) and AAC stereo audio, in an MP4 container.",
+            "PresetFullName": "/General/Fast 1080p30",
+            "PresetName": "Fast 1080p30",
+            "PtoPType": "chapter",
+            "QueueWhenComplete": "notify",
+            "SrtCodeset": "ISO-8859-1",
+            "SubtitleAddCC": false,
+            "SubtitleAddForeignAudioSearch": true,
+            "SubtitleAddForeignAudioSubtitle": false,
+            "SubtitleBurnBDSub": true,
+            "SubtitleBurnBehavior": "foreign",
+            "SubtitleBurnDVDSub": true,
+            "SubtitleBurned": true,
+            "SubtitleDefaultTrack": false,
+            "SubtitleForced": true,
+            "SubtitleImportDisable": true,
+            "SubtitleLanguageList": [],
+            "SubtitleSrtEnable": false,
+            "SubtitleTrackName": "",
+            "SubtitleTrackSelectionBehavior": "none",
+            "Type": 0,
+            "UsesPictureFilters": true,
+            "UsesPictureSettings": 1,
+            "VideoAvgBitrate": 6000.0,
+            "VideoColorMatrixCodeOverride": 0,
+            "VideoEncoder": "nvenc_h265",
+            "VideoFramerate": "auto",
+            "VideoFramerateCFR": false,
+            "VideoFramerateMode": "pfr",
+            "VideoFrameratePFR": false,
+            "VideoFramerateVFR": true,
+            "VideoGrayScale": false,
+            "VideoLevel": "auto",
+            "VideoOptionExtra": "",
+            "VideoPreset": "medium",
+            "VideoPresetSlider": 3,
+            "VideoProfile": "auto",
+            "VideoQSVAsyncDepth": 4,
+            "VideoQSVDecode": false,
+            "VideoQualitySlider": 16,
+            "VideoQualityType": 2,
+            "VideoScaler": "swscale",
+            "VideoTune": "none",
+            "VideoTurboTwoPass": true,
+            "VideoTwoPass": true,
+            "WhenComplete": "notify",
+            "activity_location": "/home/bdavidson/.config/ghb/Activity.log.89742",
+            "angle": 1.0,
+            "angle_count": 1,
+            "autoscale": true,
+            "chapter_list": [],
+            "dest_dir": "/home/bdavidson/Videos",
+            "dest_file": "20110104171833.mkv",
+            "destination": "/home/bdavidson/Videos/20110104171833.mkv",
+            "display_aspect": "16:9",
+            "end_point": 1.0,
+            "job_status": 0,
+            "job_unique_id": 0,
+            "preset_modified": true,
+            "preset_reload": false,
+            "preview_frame": 2,
+            "scale_height": 480.0,
+            "scale_width": 720.0,
+            "single_title": 1.0,
+            "source": "/home/bdavidson/Videos/Reorganized_Vids/2011/01_January/20110104171833.mpg",
+            "source_height": 480,
+            "source_label": "20110104171833",
+            "source_width": 720,
+            "start_frame": -1,
+            "start_point": 1.0,
+            "title": "1",
+            "title_selected": false,
+            "volume": "20110104171833",
+            "vquality_type_bitrate": false,
+            "vquality_type_constant": true,
+            "x264FastDecode": false,
+            "x264Option": "",
+            "x264UseAdvancedOptions": false,
+            "x264ZeroLatency": false
+        }
+    }
+]

@@ -156,6 +156,35 @@ std::string Modd::replaceAll(std::string& s, const std::string& toReplace, const
     return result;
 }
 
+bool Modd::relocate(const fs::path& outDir) {
+    bool success;
+    try {
+        success = fs::create_directories(outDir);
+    } catch (const fs::filesystem_error& e) {
+        std::cerr << e.what() <<  std::endl;
+    }
+
+    fs::path outPath = outDir;
+    outPath.concat(this->m_name);
+
+    try {
+        success = fs::copy_file(this->m_location, outPath);
+    } catch (const fs::filesystem_error& e) {
+        std::cerr << e.what() << std::endl;
+    }
+
+    try{
+        if (success){
+            success = fs::remove(this->m_location);
+            this->m_location = outPath;
+        }
+    } catch (const fs::filesystem_error& e) {
+        std::cerr << e.what() << std::endl;
+    }
+
+    return success;
+}
+
 void Modd::setActualTime(const TimeZone& tz) {
     uint64_t originalSecs = static_cast<uint64_t>(this->m_dateTimeOriginal * 86400);
 

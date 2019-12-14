@@ -10,8 +10,8 @@ extern "C" {
 #include <sqlite3.h>
 };
 
-#include "metadata/Modd.hxx"
-#include "metadata/Video.hxx"
+#include "../metadata/Modd.hxx"
+#include "../metadata/Video.hxx"
 
 namespace fs = std::filesystem;
 using std::string;
@@ -19,12 +19,10 @@ using std::vector;
 using std::map;
 
 namespace memory_replay {
-    static const char PREPARE_MODD_TABLE[] =
+    static const string PREPARE_MODD_TABLE =
     "CREATE TABLE IF NOT EXISTS modd (checkCode INTEGER UNIQUE, name TEXT, dateTime INTEGER, videoDuration REAL, videoFileSize INTEGER, moddFileLocation TEXT UNIQUE, PRIMARY KEY(checkCode))";
-    static const int PREPARE_MODD_LEN = 185;
-    static const char PREPARE_VIDEO_TABLE[] = 
+    static const string PREPARE_VIDEO_TABLE = 
     "CREATE TABLE IF NOT EXISTS video (hash BLOB PRIMARY KEY UNIQUE, name TEXT, moddCheckCode TEXT UNIQUE, dateTime INTEGER, duration REAL, fileLocation TEXT, fileSize INTEGER, FOREIGN KEY(moddCheckCode) REFERENCES modd(checkCode))";
-    static const int PREPARE_VIDEO_LEN = 242;
 
     // USE WITH BOOST::FORMAT
     static const string MODD_INS_STR = "INSERT INTO \"modd\" (checkCode, name, dateTime, videoDuration, videoFileSize, moddFileLocation) VALUES (?, ?, ?, ?, ?, ?)";
@@ -40,19 +38,24 @@ namespace memory_replay {
 
         Rows query(const string& stmt);
 
-        void addEntry(const Modd& modd);
-        void addEntry(const Video& video);
+        Video   get(Hash hash);
+        Modd    get(uint32_t checkCode);
+
+        void updateEntries(const vector<Video*> videos);
 
         void addEntries(const vector<Modd*> modds);
         void addEntries(const vector<Video*> videos);
 
-        void updateEntry(const Modd& modd);
-        void updateEntry(const Video& video);
-
-        bool contains(const Modd& modd);
-        bool contains(const Video& video);
+        bool contains(const Modd& modd) const;
+        bool contains(const Video& video) const;
     private:
         sqlite3 *m_dbHandle;
+
+        sqlite3_stmt *addEntry(const Modd& modd);
+        sqlite3_stmt *addEntry(const Video& video);
+
+        sqlite3_stmt *updateEntry(const Modd& modd);
+        sqlite3_stmt *updateEntry(const Video& video);
 
         void sqliteError(const int& errCode);
         int execStatement(string statement, unsigned int flags);
